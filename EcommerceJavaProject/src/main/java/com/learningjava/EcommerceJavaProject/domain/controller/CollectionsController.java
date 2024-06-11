@@ -4,10 +4,8 @@ import com.learningjava.EcommerceJavaProject.api.DTO.collectionsDTO.CollectionsD
 import com.learningjava.EcommerceJavaProject.api.DTO.collectionsDTO.CollectionsDTOmodify;
 import com.learningjava.EcommerceJavaProject.domain.repositories.CategoryRepository;
 import com.learningjava.EcommerceJavaProject.domain.repositories.SaleRepository;
-import com.learningjava.EcommerceJavaProject.entity.Category;
 import com.learningjava.EcommerceJavaProject.entity.Collections;
 import com.learningjava.EcommerceJavaProject.domain.repositories.CollectionsRepository;
-import com.learningjava.EcommerceJavaProject.entity.Sale;
 import com.learningjava.EcommerceJavaProject.exceptions.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +19,14 @@ public class CollectionsController {
     //Repository//
     final CollectionsRepository collectionsRepository;
     final CategoryRepository categoryRepository;
-//    final SaleRepository saleRepository;
+    final SaleRepository saleRepository;
 
 
-    public CollectionsController(CollectionsRepository collectionsRepository, CategoryRepository categoryRepository) {
+    public CollectionsController(CollectionsRepository collectionsRepository, CategoryRepository categoryRepository, SaleRepository saleRepository) {
         this.collectionsRepository = collectionsRepository;
         this.categoryRepository = categoryRepository;
-       
+
+        this.saleRepository = saleRepository;
     }
 
     //Read - GET//
@@ -54,6 +53,8 @@ public class CollectionsController {
         productToAdd.setColor(addDTO.getColor());
         productToAdd.setSize(addDTO.getSize());
         productToAdd.setPriceWithIncludedTaxes(addDTO.getPriceWithIncludedTaxes());
+        productToAdd.setCategoryId(addDTO.getCategoryId());
+        productToAdd.setDiscountId(addDTO.getDiscountId());
         return collectionsRepository.save(productToAdd);
     }
 
@@ -90,7 +91,7 @@ public class CollectionsController {
     }
 
 //    CREATE - Discount/Sale
-    @PostMapping("/checkout/discount/{id}*")
+    @GetMapping("/checkout/discount/{id}")
     Collections discount(@PathVariable Long id,
                      @RequestParam String discountCode) {
         Collections productDiscount = collectionsRepository.findById(id)
@@ -100,9 +101,9 @@ public class CollectionsController {
         if (discountCode == null ) {
             discountPercentage = 1;
         } else {
-            discountPercentage = collectionsRepository.findByDiscountId(id);
+            discountPercentage = saleRepository.findDiscountPercentageByDiscountCode(discountCode).getDiscountPercentage();
         }
-        productDiscount.setPriceWithIncludedTaxes((productDiscount.getPriceWithIncludedTaxes() * discountPercentage));
+        productDiscount.setPriceWithIncludedTaxes((productDiscount.getPriceWithIncludedTaxes()-(productDiscount.getPriceWithIncludedTaxes() * discountPercentage)));
 
         return productDiscount;
 
