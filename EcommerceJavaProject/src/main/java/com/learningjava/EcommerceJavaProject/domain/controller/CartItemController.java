@@ -53,7 +53,7 @@ public class CartItemController {
     }
 
 
-    @DeleteMapping
+    @DeleteMapping("/delete/{id}")
     ResponseEntity<String> deleteItem (@PathVariable Long id) {
         CartItem itemToBeDeleted = cartItemRepository.findById(id).
                 orElseThrow(() -> new BadRequestException("Item id " + id +" not found!"));

@@ -90,7 +90,7 @@ public class CollectionsController {
         return collectionsRepository.findAllProductsByCategoryId(categoryId);
     }
 
-//    CREATE - Discount/Sale
+//    GET - Discount/Sale
     @GetMapping("/checkout/discount/{id}")
     Collections discount(@PathVariable Long id,
                      @RequestParam String discountCode) {
@@ -101,9 +101,11 @@ public class CollectionsController {
         if (discountCode == null ) {
             discountPercentage = 1;
         } else {
-            discountPercentage = saleRepository.findDiscountPercentageByDiscountCode(discountCode).getDiscountPercentage();
+            discountPercentage = saleRepository.findDiscountPercentageByDiscountCode(discountCode)
+                    .getDiscountPercentage();
         }
-        productDiscount.setPriceWithIncludedTaxes((productDiscount.getPriceWithIncludedTaxes()-(productDiscount.getPriceWithIncludedTaxes() * discountPercentage)));
+        productDiscount.setPriceWithIncludedTaxes((productDiscount.getPriceWithIncludedTaxes()
+                -(productDiscount.getPriceWithIncludedTaxes() * discountPercentage)));
 
         return productDiscount;
 
